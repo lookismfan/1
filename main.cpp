@@ -60,114 +60,138 @@ int main() {
     return 0;
 }
 */
-#include <iostream>
-#include <string>
-#include <vector>
-#include <Windows.h>
-#include <limits>
-using namespace std;
+#include <iostream>                              // Подключаем библиотеку для ввода и вывода данных через cin и cout
+#include <string>                                // Подключаем библиотеку для работы со строками типа string
+#include <vector>                                // Подключаем библиотеку для использования динамического массива vector
+#include <Windows.h>                             // Подключаем функции Windows, необходимые для настройки кодировки консоли
+#include <limits>                                // Подключаем numeric_limits, используемый при очистке буфера ввода
+using namespace std;                             // Позволяет использовать cout, cin, string, vector без приставки std::
+
 // Структура для хранения информации о дисциплине
-struct Discipline {
-    string name;
-    int grade;
-};
+struct Discipline {                              // Объявляем структуру Discipline, описывающую одну дисциплину
+    string name;                                 // Поле для хранения названия дисциплины
+    int grade;                                   // Поле для хранения оценки по дисциплине
+};                                               // Завершаем описание структуры Discipline
+
 // Структура для хранения информации о студенте
-struct Student {
-    string full_name;
-    vector<Discipline> subjects;
-};
+struct Student {                                 // Объявляем структуру Student, описывающую одного студента
+    string full_name;                            // Поле для хранения ФИО студента
+    vector<Discipline> subjects;                 // Динамический массив дисциплин и оценок данного студента
+};                                               // Завершаем описание структуры Student
+
 // Ввод целого числа с проверкой
-int input_number() {
-    int number;
-    while (!(cin >> number)) {
-        cout << "Ошибка! Нужно ввести число: ";
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    }
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    return number;
-}
+int input_number() {                             // Объявляем функцию для безопасного ввода целого числа
+    int number;                                  // Создаём переменную, в которую будет записываться введённое число
+    while (!(cin >> number)) {                   // Пытаемся считать число; цикл выполняется, если пользователь ввёл не число
+        cout << "Ошибка! Нужно ввести число: ";  // Сообщаем пользователю об ошибке ввода
+        cin.clear();                             // Сбрасываем флаг ошибки потока cin после неправильного ввода
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Удаляем все неправильные символы из буфера до конца строки
+    }                                            // Завершаем цикл проверки правильности ввода
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');     // Удаляем оставшийся символ перевода строки после числа
+    return number;                               // Возвращаем корректно введённое целое число
+}                                                // Завершаем функцию input_number
+
 // Ввод данных одной дисциплины
-void input_subject(Discipline& subject) {
-    cout << "Укажите название предмета: ";
-    getline(cin, subject.name);
-    cout << "Укажите полученную оценку: ";
-    subject.grade = input_number();
+void input_subject(Discipline& subject) {        // Функция принимает дисциплину по ссылке, чтобы изменить её поля
+    cout << "Укажите название предмета: ";       // Просим пользователя ввести название дисциплины
+    getline(cin, subject.name);                  // Считываем полное название дисциплины, включая возможные пробелы
+    cout << "Укажите полученную оценку: ";       // Просим пользователя ввести оценку
+    subject.grade = input_number();              // Получаем целое число с помощью функции проверки ввода
 
-    while (subject.grade < 2 || subject.grade > 5) {
-        cout << "Оценка должна быть от 2 до 5. Повторите ввод: ";
-        subject.grade = input_number();
-    }
-}
+    while (subject.grade < 2 || subject.grade > 5) { // Проверяем, находится ли оценка в допустимом диапазоне от 2 до 5
+        cout << "Оценка должна быть от 2 до 5. Повторите ввод: "; // Сообщаем о недопустимом значении оценки
+        subject.grade = input_number();          // Повторно считываем оценку
+    }                                            // Цикл заканчивается после ввода оценки от 2 до 5
+}                                                // Завершаем функцию input_subject
+
 // Ввод данных одного студента
-void input_student(Student& stud) {
-    int subject_count;
-    cout << "Укажите ФИО: ";
-    getline(cin, stud.full_name);
-    cout << "Сколько дисциплин сдавал студент? ";
-    subject_count = input_number();
-    while (subject_count < 4) {
-        cout << "Количество дисциплин должно быть не меньше 4. Повторите ввод: ";
-        subject_count = input_number();
-    }
-    stud.subjects.resize(subject_count);
-    for (int i = 0; i < subject_count; i++) {
-        cout << "\nВвод данных по предмету №" << i + 1 << endl;
-        input_subject(stud.subjects[i]);
-    }
-}
-// Вывод одной дисциплины
-void print_subject(const Discipline& subject) {
-    cout << subject.name << ": " << subject.grade << endl;
-}
-// Вывод информации о студенте
-void print_student(const Student& stud) {
-    cout << "\nСтудент: " << stud.full_name << endl;
-    cout << "Оценки за экзамены:" << endl;
+void input_student(Student& stud) {              // Функция получает объект студента по ссылке для заполнения его данных
+    int subject_count;                           // Переменная для хранения количества дисциплин студента
+    cout << "Укажите ФИО: ";                     // Просим пользователя ввести ФИО студента
+    getline(cin, stud.full_name);                // Считываем ФИО целиком вместе с пробелами
+    cout << "Сколько дисциплин сдавал студент? ";// Просим ввести количество дисциплин
+    subject_count = input_number();              // Считываем количество дисциплин с проверкой на ввод числа
 
-    for (int i = 0; i < stud.subjects.size(); i++) {
-        cout << i + 1 << ") ";
-        print_subject(stud.subjects[i]);
-    }
-}
+    while (subject_count < 4) {                  // Проверяем условие задания: дисциплин должно быть не меньше четырёх
+        cout << "Количество дисциплин должно быть не меньше 4. Повторите ввод: "; // Сообщаем об ошибке
+        subject_count = input_number();          // Повторно запрашиваем количество дисциплин
+    }                                            // Выходим из цикла, когда введено число не меньше четырёх
+
+    stud.subjects.resize(subject_count);          // Изменяем размер вектора дисциплин в соответствии с введённым количеством
+
+    for (int i = 0; i < subject_count; i++) {    // Цикл перебирает все дисциплины студента
+        cout << "\nВвод данных по предмету №" << i + 1 << endl; // Выводим номер дисциплины, которую сейчас вводим
+        input_subject(stud.subjects[i]);          // Заполняем данные текущей дисциплины с индексом i
+    }                                            // Завершаем цикл ввода дисциплин
+}                                                // Завершаем функцию input_student
+
+// Вывод одной дисциплины
+void print_subject(const Discipline& subject) {  // Функция получает дисциплину по константной ссылке только для чтения
+    cout << subject.name << ": " << subject.grade << endl; // Выводим название дисциплины и полученную оценку
+}                                                // Завершаем функцию print_subject
+
+// Вывод информации о студенте
+void print_student(const Student& stud) {        // Функция получает данные студента по константной ссылке только для вывода
+    cout << "\nСтудент: " << stud.full_name << endl; // Выводим ФИО студента
+    cout << "Оценки за экзамены:" << endl;       // Выводим заголовок перед списком дисциплин и оценок
+
+    for (int i = 0; i < stud.subjects.size(); i++) { // Перебираем все дисциплины текущего студента
+        cout << i + 1 << ") ";                   // Выводим порядковый номер дисциплины
+        print_subject(stud.subjects[i]);          // Вызываем функцию вывода названия дисциплины и оценки
+    }                                            // Завершаем цикл вывода дисциплин
+}                                                // Завершаем функцию print_student
+
 // Проверка: все ли оценки равны 5
-bool all_grades_are_five(const Student& stud) {
-    for (int i = 0; i < stud.subjects.size(); i++) {
-        if (stud.subjects[i].grade != 5) {
-            return false;
-        }
-    }
-    return true;
-}
-int main() {
-    SetConsoleCP(CP_UTF8);
-    SetConsoleOutputCP(CP_UTF8);
-    int student_count;
-    cout << "Введите число студентов в группе: ";
-    student_count = input_number();
-    while (student_count <= 0) {
-        cout << "Количество студентов должно быть больше 0. Повторите ввод: ";
-        student_count = input_number();
-    }
-    vector<Student> group(student_count);
+bool all_grades_are_five(const Student& stud) {  // Функция проверяет, получил ли студент пятёрки по всем дисциплинам
+    for (int i = 0; i < stud.subjects.size(); i++) { // Перебираем все оценки студента
+        if (stud.subjects[i].grade != 5) {       // Проверяем, отличается ли текущая оценка от 5
+            return false;                        // Если найдена хотя бы одна не пятёрка, возвращаем false
+        }                                        // Завершаем условие проверки текущей оценки
+    }                                            // Завершаем перебор всех дисциплин
+    return true;                                 // Если других оценок не найдено, возвращаем true
+}                                                // Завершаем функцию all_grades_are_five
+
+int main() {                                     // Главная функция программы, с неё начинается выполнение
+    SetConsoleCP(CP_UTF8);                       // Устанавливаем UTF-8 для ввода символов в консоли Windows
+    SetConsoleOutputCP(CP_UTF8);                 // Устанавливаем UTF-8 для вывода символов в консоли Windows
+
+    int student_count;                           // Переменная для хранения количества студентов в группе
+
+    cout << "Введите число студентов в группе: ";// Просим пользователя ввести количество студентов
+    student_count = input_number();              // Считываем количество студентов с проверкой ввода
+
+    while (student_count <= 0) {                 // Проверяем, что количество студентов больше нуля
+        cout << "Количество студентов должно быть больше 0. Повторите ввод: "; // Сообщаем о неправильном значении
+        student_count = input_number();          // Повторно запрашиваем количество студентов
+    }                                            // Завершаем цикл после ввода положительного количества
+
+    vector<Student> group(student_count);         // Создаём вектор студентов размером student_count
+
     // Ввод данных
-    for (int i = 0; i < student_count; i++) {
-        cout << "Данные студента №" << i + 1 << endl;
-        input_student(group[i]);
-    }
+    for (int i = 0; i < student_count; i++) {    // Перебираем всех студентов группы для ввода их данных
+        cout << "Данные студента №" << i + 1 << endl; // Выводим порядковый номер текущего студента
+        input_student(group[i]);                  // Заполняем информацию о текущем студенте
+    }                                            // Завершаем цикл ввода студентов
+
     // Вывод всех введенных данных
-    cout << "\n\n СПИСОК СТУДЕНТОВ " << endl;
-    for (int i = 0; i < student_count; i++) {
-        cout << "\nСтудент №" << i + 1;
-        print_student(group[i]);
-    }
+    cout << "\n\n СПИСОК СТУДЕНТОВ " << endl;    // Выводим заголовок списка всех введённых студентов
+
+    for (int i = 0; i < student_count; i++) {    // Перебираем всех студентов для вывода введённых данных
+        cout << "\nСтудент №" << i + 1;          // Выводим порядковый номер студента
+        print_student(group[i]);                  // Вызываем функцию вывода полной информации о студенте
+    }                                            // Завершаем цикл вывода студентов
+
     // Подсчет студентов со всеми пятерками
-    int excellent_count = 0;
-    for (int i = 0; i < student_count; i++) {
-        if (all_grades_are_five(group[i])) {
-            excellent_count++;
-        }
-    }
-    cout << "Число студентов, получивших оценку 5 по всем предметам: "<< excellent_count << endl;
-    return 0;
-}
+    int excellent_count = 0;                     // Создаём счётчик студентов, у которых все оценки равны 5
+
+    for (int i = 0; i < student_count; i++) {    // Перебираем всех студентов группы
+        if (all_grades_are_five(group[i])) {     // Проверяем, все ли оценки текущего студента равны 5
+            excellent_count++;                   // Если да, увеличиваем количество отличников на единицу
+        }                                        // Завершаем условие проверки студента
+    }                                            // Завершаем цикл подсчёта отличников
+
+    cout << "Число студентов, получивших оценку 5 по всем предметам: "
+         << excellent_count << endl;              // Выводим итоговое количество студентов, сдавших всё на 5
+
+    return 0;                                    // Завершаем программу без ошибок и возвращаем код 0
+}                                                // Завершаем главную функцию main
